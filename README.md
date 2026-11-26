@@ -31,14 +31,14 @@ pip install numpy
 ## Utilizzo
 
 ```bash
-python bouquet_ascii.py
+python bouquet.py
 ```
 
 Per cambiare la velocita' dell'animazione, passa un moltiplicatore come argomento:
 
 ```bash
-python bouquet_ascii.py 1.5   # 1.5x piu' veloce
-python bouquet_ascii.py 0.5   # meta' velocita'
+python bouquet.py 1.5   # 1.5x piu' veloce
+python bouquet.py 0.5   # meta' velocita'
 ```
 
 Il valore minimo accettato e' `0.1`; un valore non valido viene ignorato e si usa la velocita' normale.
@@ -76,7 +76,7 @@ Per cambiare la disposizione dei fiori modifica il seed in `np.random.default_rn
 
 ```
 .
-├── bouquet_ascii.py   # script principale
+├── bouquet.py   # script principale
 └── README.md
 ```
 
