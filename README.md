@@ -1,89 +1,91 @@
-# Bouquet animato
+# Bouquet ASCII
 
-Un bouquet di fiori che cresce e sboccia, scritto in Python. Gli steli salgono, i fiori si aprono, una carta di incarto con il nastro avvolge il mazzo, e alla fine i fiori continuano a oscillare dolcemente.
+Un bouquet di fiori animato, disegnato interamente con caratteri ASCII a colori direttamente nel terminale.
 
-Il progetto ha due versioni:
+Gli steli crescono, i fiori sbocciano uno dopo l'altro, compare la carta di incarto con il nastro e, a composizione completa, i fiori continuano a oscillare dolcemente finche' non interrompi il programma.
 
-| File | Cosa fa |
-|------|---------|
-| `bouquet_ascii.py` | Disegna il bouquet direttamente nel terminale, in ASCII a colori. Versione principale. |
-| `bouquet.py` | Versione grafica con matplotlib, in una finestra senza bottoni, su sfondo scuro. |
+## Caratteristiche
+
+- Rendering a colori a 24 bit (true color) tramite sequenze ANSI
+- Animazione in un solo ciclo di crescita, seguita da un'oscillazione continua
+- Fiori generati in modo procedurale: numero di petali, dimensione, rotazione e colori variano da fiore a fiore
+- Tre stili di caratteri diversi per i petali, per dare piu' varieta' visiva
+- Adattamento automatico alla dimensione del terminale, anche se la finestra viene ridimensionata mentre l'animazione gira
+- Un solo `write` per frame, per evitare lo sfarfallio
+- Risultato riproducibile: il seed casuale e' fisso, quindi il bouquet e' sempre lo stesso
 
 ## Requisiti
 
 - Python 3.8 o superiore
-- `numpy` (per entrambe le versioni)
-- `matplotlib` (solo per `bouquet.py`)
-- `pillow` (solo per salvare la GIF con `bouquet.py --save`)
-
-Per la versione ASCII serve inoltre un terminale con colori a 24 bit (true color) e un font a larghezza fissa. Su Windows va bene Windows Terminal; il vecchio prompt dei comandi non basta.
+- NumPy
+- Un terminale con supporto ai colori a 24 bit (ad esempio Windows Terminal, iTerm2, GNOME Terminal, Kitty, Alacritty)
 
 ## Installazione
 
-```
+```bash
+git clone https://github.com/sam1093k/Bouquet.git
+cd Bouquet
 pip install numpy
 ```
 
-Per la versione matplotlib:
+## Utilizzo
 
-```
-pip install numpy matplotlib pillow
-```
-
-## Uso
-
-### Versione ASCII
-
-```
+```bash
 python bouquet_ascii.py
-python bouquet_ascii.py 1.5
 ```
 
-L'argomento facoltativo è la velocità: `1.5` significa 1,5 volte più veloce, `0.5` metà velocità (minimo `0.1`).
+Per cambiare la velocita' dell'animazione, passa un moltiplicatore come argomento:
 
-- La crescita avviene una sola volta, poi i fiori restano a oscillare.
-- Premi `Ctrl+C` per uscire. Il terminale torna com'era prima (il bouquet scompare dallo schermo).
-- Ingrandisci il terminale prima di avviarlo: l'animazione si adatta alle dimensioni e si ridimensiona anche se le cambi mentre gira. Più righe ci sono, più il disegno è dettagliato (fino a 60 righe).
-
-### Versione matplotlib
-
-```
-python bouquet.py
-python bouquet.py --save
+```bash
+python bouquet_ascii.py 1.5   # 1.5x piu' veloce
+python bouquet_ascii.py 0.5   # meta' velocita'
 ```
 
-- Senza argomenti apre una finestra con solo l'animazione, senza barra dei bottoni e, con il backend TkAgg, senza barra del titolo. Premi `Esc` o `Q` per chiuderla.
-- Con `--save` crea `bouquet.gif` (serve `pillow`).
-- Se non vuoi la finestra senza bordo, togli la riga con `overrideredirect(True)`.
+Il valore minimo accettato e' `0.1`; un valore non valido viene ignorato e si usa la velocita' normale.
 
-## Come funziona la versione ASCII
+Per uscire premi `Ctrl+C`: il terminale viene ripristinato (cursore e schermo originale compresi).
 
-Ogni frame viene disegnato su una griglia di caratteri con numpy: gli steli sono curve di Bézier che crescono nel tempo, i petali sono ellissi calcolate solo in una piccola finestra attorno al loro centro, la carta e il nastro sono triangoli. Il frame intero viene poi trasformato in una sola stringa con sequenze ANSI di colore e scritto in un unico `write`, per evitare lo sfarfallio. Il rendering costa pochi millisecondi a frame.
+Consiglio: ingrandisci la finestra del terminale prima di avviare lo script, cosi' il bouquet viene disegnato con maggiore dettaglio.
 
-I fiori sono su tre livelli di altezza per sovrapporsi meno, e ognuno dei tre ha un set di caratteri diverso per i petali, così fiori vicini si distinguono anche dove si toccano. I colori seguono una palette di sei tonalità.
+## Configurazione
 
-## Personalizzazione (`bouquet_ascii.py`)
+I parametri principali si trovano in cima al file:
 
-I parametri principali sono in cima al file:
+| Parametro | Descrizione |
+|---|---|
+| `FPS` | Frame al secondo dell'animazione |
+| `N_FLOWERS` | Numero di fiori nel bouquet |
+| `T_STEMS` | Frame in cui finiscono di crescere gli steli |
+| `T_BLOOM` | Frame in cui finiscono di sbocciare i fiori |
+| `T_WRAP` | Frame in cui compare la carta con il nastro |
+| `TOTAL` | Frame in cui la composizione e' completa |
+| `FLOWER_SCALE` | Dimensione dei fiori (piu' alto = fiori piu' grandi) |
+| `MAX_ROWS` | Altezza massima in righe del disegno |
 
-| Parametro | Effetto |
-|-----------|---------|
-| `FPS` | Fotogrammi al secondo (default 40) |
-| `N_FLOWERS` | Numero di fiori (default 9). Più fiori significa più sovrapposizioni |
-| `FLOWER_SCALE` | Dimensione dei fiori |
-| `MAX_ROWS` | Righe massime usate nel terminale |
-| `XMIN`, `XMAX`, `YMIN`, `YMAX` | Proporzioni della scena: più alta che larga rende il bouquet più slanciato |
-| `T_STEMS`, `T_BLOOM`, `T_WRAP`, `TOTAL` | Tempi (in frame) di crescita, fioritura, incarto e fine della composizione |
-| `STYLES` | Caratteri usati per i petali di ciascun tipo di fiore |
-| `PALETTE` | Colori dei fiori |
+Per cambiare la disposizione dei fiori modifica il seed in `np.random.default_rng(7)`. La palette si personalizza nella lista `PALETTE` (colori in esadecimale) e i caratteri usati per i petali in `STYLES`.
 
-Il fatto che i fiori siano sempre uguali a ogni avvio dipende dal seed del generatore casuale (`default_rng(7)`): cambialo per ottenere un mazzo diverso.
+## Come funziona
 
-L'ampiezza dell'oscillazione è il valore `0.07` nella riga `sway = ...` della funzione `render`, e la frequenza è il `0.12`.
+1. **Griglia di caratteri.** La classe `Renderer` mantiene due matrici: una di caratteri e una di colori. Il "mondo" e' un rettangolo di coordinate (`XMIN`..`XMAX`, `YMIN`..`YMAX`) mappato sulla griglia, tenendo conto che le celle del terminale sono alte circa il doppio di quanto sono larghe.
+2. **Primitive.** Ellissi (petali, foglie, centri), triangoli (carta e nastro) e polilinee (steli) vengono rasterizzati con NumPy in modo vettorializzato.
+3. **Steli.** Ogni stelo e' una curva di Bezier quadratica, che cresce progressivamente e oscilla leggermente una volta completata la composizione.
+4. **Fiori.** Ogni fiore e' composto da due corone di petali (esterna e interna sfalsata), con bordo dedicato e centro. Lo sbocciare e' controllato da una funzione di easing (`smoothstep`).
+5. **Output.** La scena viene convertita in una singola stringa di sequenze ANSI, scritta in un unico `write` per frame sullo schermo alternativo del terminale.
 
-## Problemi comuni
+## Struttura del progetto
 
-- **Colori sbagliati o caratteri strani sul terminale**: il terminale non supporta il true color. Usa Windows Terminal o un terminale moderno.
-- **Fiori schiacciati o allungati**: le celle del tuo font hanno un rapporto altezza/larghezza diverso da quello previsto (circa 2:1). Cambia il rapporto nel calcolo di `self.W` nella classe `Renderer`.
-- **Il disegno è piccolo o poco dettagliato**: ingrandisci la finestra del terminale o riduci il carattere. Lo script usa tutto lo spazio disponibile.
-- **Nulla appare, o compaiono sequenze di escape come testo**: assicurati di avviare lo script da un terminale e non da un ambiente che non interpreta i codici ANSI (alcuni editor, console integrate).
+```
+.
+├── bouquet_ascii.py   # script principale
+└── README.md
+```
+
+## Risoluzione dei problemi
+
+- **I colori sono sbagliati o assenti:** il terminale non supporta il true color. Usa Windows Terminal o un emulatore moderno. Il vecchio `cmd.exe` non e' adatto.
+- **Il disegno e' piccolo o tagliato:** ingrandisci la finestra e rilancia lo script.
+- **L'animazione e' lenta:** abbassa `FPS` o riduci la dimensione della finestra; il costo del rendering cresce con l'area disegnata.
+
+## Licenza
+
+Aggiungi qui la licenza del progetto (ad esempio MIT).
